@@ -63,15 +63,7 @@ app.get("/recipe/:id", async (req, res) => {
 app.post("/recipe", upload.array("image", "data"), async (req, res) => {
   try {
     const fileName = req.files[0].filename;
-    let imgPath = "http://localhost:5000/uploads/" + fileName;
-
-    if (process.env.NODE_ENV !== "production") {
-      imgPath = `http://localhost:5000/uploads/${fileName}`;
-      console.log("development server");
-    } else {
-      imgPath = "https://cooking-recipe-mern.herokuapp.com/uploads/" + fileName;
-      console.log("production server");
-    }
+    let imgPath = req.protocol + "://" + req.get("host") + "/uploads/" + fileName;
     const data = JSON.parse(req.body.data);
     const recipe = new Recipe({ ...data, image: imgPath });
     await recipe.save();
@@ -101,11 +93,7 @@ app.patch("/recipe/:id", upload.array("image", "data"), async (req, res) => {
   const fileSize = req.files[0].size;
 
   if (fileSize !== 0) {
-    if (process.env.NODE_ENV !== "production") {
-      data.image = `http://localhost:5000/uploads/${fileName}`;
-    } else {
-      data.image = __dirname + "\\uploads\\" + fileName;
-    }
+    data.image = req.protocol + "://" + req.get("host") + "/uploads/" + fileName;
   }
 
   try {
